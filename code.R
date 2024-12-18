@@ -136,6 +136,63 @@ summary_table <- police %>%
 summary_table
 
 
+# Statistiques descriptives bivariées des variables principales : 
+
+
+# Relation entre raceethnicity et armed_group :
+
+# Créer un tableau croisé avec xtabs
+tab1 <- xtabs(~ raceethnicity + armed_group, data = police)
+
+
+# Charger le package questionr pour lprop
+library(questionr)
+
+# Calculer les pourcentages en ligne
+l1 <- lprop(tab1)
+
+# Charger kableExtra pour améliorer la présentation
+library(kableExtra)
+
+# Générer un tableau bien formaté
+kable(round(l1, 1), digits = 1, caption = "Pourcentages en ligne: Relation entre raceethnicity et armed_group") %>% kable_styling()
+
+# Test du Khi-2 pour le tableau croisé entre raceethnicity et armed_group
+
+chisq.test(tab1)
+
+# Calcul du V de Cramer pour le tableau croisé entre raceethnicity et armed_group
+
+cramer.v(tab1)
+
+
+# Relation entre income_group et raceethnicity :
+
+# Créer un tableau croisé avec xtabs
+tab2 <- xtabs(~ income_group + raceethnicity, data = police)
+
+# Afficher le tableau croisé brut
+print(tab2)
+
+# Charger le package questionr pour lprop
+library(questionr)
+
+# Calculer les pourcentages en ligne
+l2 <- lprop(tab2)
+
+# Charger kableExtra pour améliorer la présentation
+library(kableExtra)
+
+# Générer un tableau bien formaté
+kable(round(l2, 1), digits = 1, caption = "Pourcentages en ligne: Relation entre income_group et raceethnicity") %>% kable_styling()
+
+# Test du Khi-2 pour le tableau croisé entre income_group et raceethnicity
+
+chisq.test(tab2)
+
+# Calcul du V de Cramer pour le tableau croisé entre income_group et raceethnicity
+
+cramer.v(tab2)
 
 
 
