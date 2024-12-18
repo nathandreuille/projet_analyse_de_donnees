@@ -24,7 +24,7 @@ summary(police)
 head(police)
 
 
-#ETAPE 1 : Nettoyage et présentation des données que l'on va utiliser :
+#ETAPE 2 : Nettoyage et présentation des données que l'on va utiliser :
 
 
 
@@ -114,11 +114,23 @@ str(police)
 
 
 
-# ETAPE 2 : 
+# ETAPE 3 : 
+
+# Liste des variables principales
+primary_vars <- c("age_group", "gender", "raceethnicity", "state", "armed_group", "income_group")
 
 
+# Génération du tableau résumé pour les variables principales
+library(gtsummary)
+summary_table <- police %>%
+  select(all_of(primary_vars)) %>%
+  tbl_summary(
+    statistic = list(all_categorical() ~ "{n} ({p}%)"), # Effectif et pourcentage
+    missing_text = "NA"                                 # Afficher les valeurs manquantes
+  )
 
-
+# Afficher le tableau
+summary_table
 
 
 
