@@ -119,18 +119,22 @@ str(police)
 # Liste des variables principales
 primary_vars <- c("age_group", "gender", "raceethnicity", "state", "armed_group", "income_group")
 
-
 # Génération du tableau résumé pour les variables principales
 library(gtsummary)
+
 summary_table <- police %>%
   select(all_of(primary_vars)) %>%
   tbl_summary(
     statistic = list(all_categorical() ~ "{n} ({p}%)"), # Effectif et pourcentage
     missing_text = "NA"                                 # Afficher les valeurs manquantes
-  )
+  ) %>%
+  bold_labels() %>%                                     # Mettre les labels en gras
+  modify_header(label ~ "**Variable**") %>%             # Renommer la colonne des variables
+  modify_caption("**Résumé des variables principales des données 'police_killings'**") # Ajouter un titre
 
 # Afficher le tableau
 summary_table
+
 
 
 
