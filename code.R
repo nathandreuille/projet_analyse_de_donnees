@@ -1,3 +1,5 @@
+
+
 # Packages nécessaires pour le TD sans les cartes
 library(FactoMineR)
 library(explor)
@@ -12,8 +14,8 @@ library(kableExtra)
 
 
 # Attribution du répertoire de travail : 
-setwd("C:/Users/quent/Documents/2025/Analyse de données/projet_analyse_de_donnees")
-
+#setwd("C:/Users/quent/Documents/2025/Analyse de données/projet_analyse_de_donnees")
+#setwd("/Desktop/MIASHS/projet_analyse_de_donnees")
 # Charger la base
 police <- read.csv("police_killings.csv")
 
