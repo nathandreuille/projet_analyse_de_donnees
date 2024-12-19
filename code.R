@@ -1,17 +1,17 @@
 # Packages nécessaires pour le TD sans les cartes
 library(FactoMineR)
 library(explor)
-library(ggplot2)
-library(readr)
-library(factoextra)
 library(dplyr)
-library(tibble)
-library(corrplot)
+library(stringr)
+library(gtsummary)
+library(questionr)
+library(kableExtra)
 
-# Question 1 : charger la base --------------------------------------------------------------
 
 
-# Attribution du répertoire de travail : c'est l'emplacement physique où se trouvent les jeux de données qui seront utilisés et crées
+
+
+# Attribution du répertoire de travail : 
 setwd("C:/Users/quent/Documents/2025/Analyse de données/projet_analyse_de_donnees")
 
 # Charger la base
@@ -44,9 +44,6 @@ police$age_group <- cut(police$age, breaks = c(0, 30, 45, 60, 100),
                         labels = c("18-30", "31-45", "46-60", "60+"), include.lowest = TRUE)
 
 
-# Transformation de la variable gender en facteur 
-police$gender <- as.factor(police$gender)
-
 
 # Nettoyage de la variable raceethnicity
 
@@ -59,10 +56,6 @@ police$raceethnicity <- recode(police$raceethnicity,
 
 # Vérification des nouvelles catégories
 table(police$raceethnicity)
-
-
-# Créer une table de fréquence des incidents par État
-table(police$state)
 
 
 # Nettoyer et regrouper les valeurs de 'armed'
@@ -81,7 +74,7 @@ police$comp_income[is.na(police$comp_income)] <- mean_comp_income
 
 # Création de catégories pour comp_income
 police$income_group <- cut(police$comp_income,
-                           breaks = c(-Inf, 0.8, 1.2, Inf),  # Seuils ajustables
+                           breaks = c(-Inf, 0.8, 1.2, Inf),  
                            labels = c("Below Average", "Average", "Above Average"),
                            include.lowest = TRUE)
 
@@ -101,33 +94,6 @@ city_freq <- sort(table(police$city), decreasing = TRUE)
 head(city_freq, 10)
 
 
-# Nettoyer la variable city
-
-library(stringr)
-
-# Correction de l'encodage pour la variable city
-police$city <- iconv(police$city, from = "latin1", to = "UTF-8", sub = "byte")
-
-police$city <- police$city %>%
-  tolower() %>%                 # Convertir en minuscules
-  trimws() %>%                  # Supprimer les espaces en début et fin
-  str_to_title()                # Mettre la première lettre en majuscule
-
-# Remplacer les valeurs manquantes par "Unknown"
-police$city[is.na(police$city) | police$city == ""] <- "Unknown"
-
-
-# Nettoyer la variable cause
-police$cause <- police$cause %>%
-  tolower() %>%                   # Convertir en minuscules
-  trimws() %>%                    # Supprimer les espaces
-  str_to_title()                  # Première lettre en majuscule
-
-# Regrouper les causes rares ou ambiguës dans "Other"
-common_causes <- c("Gunshot", "Taser", "Physical")  # Liste des causes principales
-
-police$cause <- ifelse(police$cause %in% common_causes, police$cause, "Other")
-
 
 # Convertir toutes les variables qualitatives en facteurs
 police[sapply(police, is.character)] <- lapply(police[sapply(police, is.character)], as.factor)
@@ -142,10 +108,9 @@ str(police)
 # Tri univarié des variables principales :
 
 # Liste des variables actives
-variables_actives <- c("age_group", "gender", "raceethnicity", "state", "armed_group", "income_group")
+variables_actives <- c("age_group", "gender", "raceethnicity", "armed_group", "income_group")
 
 # Génération du tableau résumé pour les variables principales
-library(gtsummary)
 
 summary_table <- police %>%
   select(all_of(variables_actives)) %>%
@@ -162,7 +127,6 @@ summary_table
 
 
 
-
 # Statistiques descriptives bivariées des variables principales : 
 
 
@@ -172,14 +136,9 @@ summary_table
 tab1 <- xtabs(~ raceethnicity + armed_group, data = police)
 
 
-# Charger le package questionr pour lprop
-library(questionr)
-
 # Calculer les pourcentages en ligne
 l1 <- lprop(tab1)
 
-# Charger kableExtra pour améliorer la présentation
-library(kableExtra)
 
 # Générer un tableau bien formaté
 kable(round(l1, 1), digits = 1, caption = "Pourcentages en ligne: Relation entre raceethnicity et armed_group") %>% kable_styling()
@@ -201,14 +160,9 @@ tab2 <- xtabs(~ income_group + raceethnicity, data = police)
 # Afficher le tableau croisé brut
 print(tab2)
 
-# Charger le package questionr pour lprop
-library(questionr)
-
 # Calculer les pourcentages en ligne
 l2 <- lprop(tab2)
 
-# Charger kableExtra pour améliorer la présentation
-library(kableExtra)
 
 # Générer un tableau bien formaté
 kable(round(l2, 1), digits = 1, caption = "Pourcentages en ligne: Relation entre income_group et raceethnicity") %>% kable_styling()
@@ -225,8 +179,6 @@ cramer.v(tab2)
 
 # Etape 4 : Réalisation de l'ACM 
 
-library(FactoMineR)
-
 # Liste des variables que l'on va utiliser pour notre acm
 
 police_acm <- subset(police, select = c("cause","state","age_group", "gender", "raceethnicity", "armed_group", "income_group"))
@@ -235,7 +187,6 @@ police_acm <- subset(police, select = c("cause","state","age_group", "gender", "
 # Analyse factorielle multiple :
 acm1 <- MCA(police_acm, quali.sup = c(1:2) ,row.w=police$poidsnorm,graph = F)
 
-library(explor)
 summary(acm1)
 
 # Afficher ACM
