@@ -51,7 +51,6 @@ police$gender <- as.factor(police$gender)
 # Nettoyage de la variable raceethnicity
 
 # Regrouper les catégories sous-représentées dans "Other"
-police$raceethnicity <- as.factor(police$raceethnicity)  
 
 police$raceethnicity <- recode(police$raceethnicity, 
                                "Asian/Pacific Islander" = "Other",
@@ -102,8 +101,32 @@ city_freq <- sort(table(police$city), decreasing = TRUE)
 head(city_freq, 10)
 
 
-# Présentation de cause : 
-table(police$cause)
+# Nettoyer la variable city
+
+library(stringr)
+
+# Correction de l'encodage pour la variable city
+police$city <- iconv(police$city, from = "latin1", to = "UTF-8", sub = "byte")
+
+police$city <- police$city %>%
+  tolower() %>%                 # Convertir en minuscules
+  trimws() %>%                  # Supprimer les espaces en début et fin
+  str_to_title()                # Mettre la première lettre en majuscule
+
+# Remplacer les valeurs manquantes par "Unknown"
+police$city[is.na(police$city) | police$city == ""] <- "Unknown"
+
+
+# Nettoyer la variable cause
+police$cause <- police$cause %>%
+  tolower() %>%                   # Convertir en minuscules
+  trimws() %>%                    # Supprimer les espaces
+  str_to_title()                  # Première lettre en majuscule
+
+# Regrouper les causes rares ou ambiguës dans "Other"
+common_causes <- c("Gunshot", "Taser", "Physical")  # Liste des causes principales
+
+police$cause <- ifelse(police$cause %in% common_causes, police$cause, "Other")
 
 
 # Convertir toutes les variables qualitatives en facteurs
@@ -114,16 +137,18 @@ str(police)
 
 
 
-# ETAPE 3 : 
+# ETAPE 3 : Statistiques descriptives univariées et bivariées 
 
-# Liste des variables principales
-primary_vars <- c("age_group", "gender", "raceethnicity", "state", "armed_group", "income_group")
+# Tri univarié des variables principales :
+
+# Liste des variables actives
+variables_actives <- c("age_group", "gender", "raceethnicity", "state", "armed_group", "income_group")
 
 # Génération du tableau résumé pour les variables principales
 library(gtsummary)
 
 summary_table <- police %>%
-  select(all_of(primary_vars)) %>%
+  select(all_of(variables_actives)) %>%
   tbl_summary(
     statistic = list(all_categorical() ~ "{n} ({p}%)"), # Effectif et pourcentage
     missing_text = "NA"                                 # Afficher les valeurs manquantes
@@ -134,6 +159,8 @@ summary_table <- police %>%
 
 # Afficher le tableau
 summary_table
+
+
 
 
 # Statistiques descriptives bivariées des variables principales : 
@@ -196,5 +223,29 @@ cramer.v(tab2)
 
 
 
+# Etape 4 : Réalisation de l'ACM 
+
+library(FactoMineR)
+
+# Liste des variables que l'on va utiliser pour notre acm
+
+police_acm <- subset(police, select = c("cause","state","age_group", "gender", "raceethnicity", "armed_group", "income_group"))
 
 
+# Analyse factorielle multiple :
+acm1 <- MCA(police_acm, quali.sup = c(1:2) ,row.w=police$poidsnorm,graph = F)
+
+library(explor)
+summary(acm1)
+
+# Afficher ACM
+explor(acm1)
+
+# Afficher les valeurs propres 
+vp<-acm1$eig
+
+# On ne conserve que les valeurs propres en valeur aboslue
+vp[,1]
+sum(vp[,1])
+# On regarde lesquelles sont supérieures à l'inertie moyenne
+vp[,1]>mean(vp[,1])
