@@ -91,7 +91,7 @@ barplot(table(police$income_group),
 
 # Création du top 10 des états les plus touchés
 state_freq <- sort(table(police$state), decreasing = TRUE)
-head(city_freq, 10)
+head(state_freq, 10)
 
 
 
