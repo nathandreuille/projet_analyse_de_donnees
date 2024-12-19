@@ -34,10 +34,10 @@ head(police)
 police$age <- as.numeric(as.character(police$age))
 
 # Calculer la moyenne des âges en ignorant les NA
-mean_age <- mean(police$age, na.rm = TRUE)
+moyenne_age <- mean(police$age, na.rm = TRUE)
 
 # Remplacer les NA par la moyenne calculée
-police$age[is.na(police$age)] <- mean_age
+police$age[is.na(police$age)] <- moyenne_age
 
 # Créer des groupes d'âge
 police$age_group <- cut(police$age, breaks = c(0, 30, 45, 60, 100), 
@@ -67,10 +67,10 @@ table(police$armed_group)
 
 
 # Calculer la moyenne de comp_income en ignorant les valeurs manquantes
-mean_comp_income <- mean(police$comp_income, na.rm = TRUE)
+moyenne_comp_income <- mean(police$comp_income, na.rm = TRUE)
 
 # Remplacer les valeurs NA par la moyenne calculée
-police$comp_income[is.na(police$comp_income)] <- mean_comp_income
+police$comp_income[is.na(police$comp_income)] <- moyenne_comp_income
 
 # Création de catégories pour comp_income
 police$income_group <- cut(police$comp_income,
@@ -89,8 +89,8 @@ barplot(table(police$income_group),
         xlab = "Groupe de revenus")
 
 
-# Création du top 10 des villes les plus touchées
-city_freq <- sort(table(police$city), decreasing = TRUE)
+# Création du top 10 des états les plus touchés
+state_freq <- sort(table(police$state), decreasing = TRUE)
 head(city_freq, 10)
 
 
@@ -140,7 +140,7 @@ tab1 <- xtabs(~ raceethnicity + armed_group, data = police)
 l1 <- lprop(tab1)
 
 
-# Générer un tableau bien formaté
+# Générer un tableau 
 kable(round(l1, 1), digits = 1, caption = "Pourcentages en ligne: Relation entre raceethnicity et armed_group") %>% kable_styling()
 
 # Test du Khi-2 pour le tableau croisé entre raceethnicity et armed_group
@@ -156,9 +156,6 @@ cramer.v(tab1)
 
 # Créer un tableau croisé avec xtabs
 tab2 <- xtabs(~ income_group + raceethnicity, data = police)
-
-# Afficher le tableau croisé brut
-print(tab2)
 
 # Calculer les pourcentages en ligne
 l2 <- lprop(tab2)
